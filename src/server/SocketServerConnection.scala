@@ -23,6 +23,7 @@ class SocketServerConnection(val socket:Socket) extends Thread{
       var library:Option[SoundLib] = null
       //check if a lib or a file is requested
       if(request.contains("FILE")){ //FILE/Lib/file
+        request = request.replaceAll("LIB/", "")
         new FileResponse(request.replaceFirst("FILE/", ""))
       }else if(request.contains("LIB") && {
         request = request.replaceFirst("LIB/", "")
