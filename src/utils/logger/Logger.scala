@@ -8,8 +8,8 @@ import java.util.Calendar
   */
 object Logger{
   val undefinedString = "UNDEFINED"
-  val time = Calendar.getInstance()
   val defaultLogPath = "tmp/AtmosphereLOG.txt"
+  val time: Calendar = Calendar.getInstance()
 
   private var logger:Logger = _
   //handles the singleton
@@ -31,6 +31,13 @@ object Logger{
 
 
 class Logger(private val logFilePath:String = Logger.defaultLogPath, val consoleOut:Boolean = true) {
+
+  //indicate delimiter in logfile, and don't save writer
+  {
+    val writer = new FileWriter(new File(logFilePath), true)
+    writer.write("\n----------------------------------------")
+    writer.close()
+  }
 
   //mark new log session
   log("STARTING NEW LOG SESSION", "Logger.scala", "Constructor")
