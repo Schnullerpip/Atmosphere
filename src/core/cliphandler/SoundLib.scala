@@ -16,6 +16,8 @@ case class SoundLib(map:Map[String, Sound]){
 
 case class Sound(file:File){
 
+  var isPlaying = false
+
   private def clip():Clip = {
     if(file.exists()){
       val sound = AudioSystem.getAudioInputStream(file)
@@ -29,15 +31,23 @@ case class Sound(file:File){
   def play = {
     clip setFramePosition 0
     clip start()
+    isPlaying = true
   }
 
-  def loop = clip loop Clip.LOOP_CONTINUOUSLY
+  def loop = {
+    clip loop Clip.LOOP_CONTINUOUSLY
+    isPlaying = true
+  }
 
   def stop = {
     clip stop()
     clip setFramePosition 0
+    isPlaying = false
   }
 
-  def pause = clip stop()
+  def pause = {
+    clip stop()
+    isPlaying = false
+  }
 }
 
