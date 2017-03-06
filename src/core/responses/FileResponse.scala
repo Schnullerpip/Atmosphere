@@ -1,5 +1,6 @@
 package core.responses
 
+import core.cliphandler.SoundLib
 import main.Atmosphere
 
 /**
@@ -7,15 +8,21 @@ import main.Atmosphere
   * Lib/file
   */
 class FileResponse(libAndFile:String) extends Response{
+  val args: List[String] = libAndFile.split("/").toList
+
+  val lib: Option[SoundLib] = Atmosphere.soundLibs.get(args.head)
+  if (lib.nonEmpty) {
+    val file = lib.get.sounds.get(args.last)
+    if(args.size > 2){
+      if(args(1) == "PAUSE")
+        file.get.pause
+      else if(args(1) == "LOOP")
+        file.get.loop
+    }else
+      file.get.play
+  }
+
   override val html: String = {
-    val args = libAndFile.split("/").toList
-    if (args.size == 2) {
-      val lib = Atmosphere.soundLibs.get(args.head)
-      if (lib.nonEmpty) {
-        val file = lib.get.sounds.get(args(1))
-        file.get.play
-      }
-    }
-    ""//TODO an actual response?
+    Atmosphere.generateHTML(args.head, lib.get)
   }
 }

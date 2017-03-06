@@ -22,28 +22,42 @@ object Atmosphere {
     else Logger(msg, "Atmosphere.scala", method)
   }
 
-  def generateHTML(soundLibs: Map[String, SoundLib]) = {
-    soundLibs foreach{lib =>
+  def generateHTMLFiles(soundLibs: Map[String, SoundLib]): Unit = {
+    soundLibs foreach{lib => generateHTML(lib)}
+  }
 
-      val newFile = new File("tmp/"+lib._1+ ".html")
-      if(!newFile.exists())
-        newFile.createNewFile()
+  def generateHTML(lib:(String, SoundLib)):String = {
 
-      val br = new BufferedWriter(new FileWriter(newFile))
+    val newFile = new File("tmp/" + lib._1 + ".html")
+    if (!newFile.exists())
+      newFile.createNewFile()
 
-      val prototype = io.Source.fromFile("web/prototype.html")
-      var text = try prototype.mkString finally prototype.close()
+    val br = new BufferedWriter(new FileWriter(newFile))
 
-      br.write(text.replaceAll("LIBNAME", lib._1).replaceFirst("LIBENTRIES", {
-        for (s <- lib._2.sounds) yield
-             "\t\t\t<tr><td>" +
-             Prototype.buttonFile
-               .replaceFirst(Prototype.hrefPlaceholder, "FILE/"+lib._1+"/"+s._1)
-               .replaceFirst(Prototype.placeholder, s._1 ) +
-               "</td><td>" + Prototype.options + "</td></tr>"
-      }.mkString))
-      br.close()
-    }
+    val prototype = io.Source.fromFile("web/prototype.html")
+    var text = try prototype.mkString finally prototype.close()
+
+    val out = text.replaceAll("LIBNAME", lib._1).replaceFirst("LIBENTRIES", {
+      for (s <- lib._2.sounds) yield
+        "\t\t\t<tr><td>" +
+          Prototype.buttonFile
+            .replaceFirst(Prototype.hrefPlaceholder, "FILE/" + lib._1 + "/" + s._1)
+            .replaceFirst(Prototype.btnPlaceholder, if (s._2.isPlaying) "btn-info" else "")
+            .replaceFirst(Prototype.placeholder,
+              {if(s._2.isPlaying)"<span class=\"glyphicon glyphicon-play\"></span>"
+              //else if(s._2.isPaused)"<span class=\"glyphicon glyphicon-pause\"></span>"
+              else ""} +
+              s._1) +
+          "</td><td>" +
+          Prototype.options
+            .replaceFirst(Prototype.playPlaceholder,"FILE/" + lib._1 + "/" + s._1)
+            .replaceFirst(Prototype.pausePlaceholder, "FILE/PAUSE/" + lib._1 + "/" + s._1)
+            .replaceFirst(Prototype.repeatPlaceholder, "FILE/LOOP/" + lib._1 + "/" + s._1) +
+          "</td></tr>"
+    }.mkString)
+    br.write(out)
+    br.close()
+    out
   }
 
   def main(args : Array[String]): Unit ={
@@ -74,7 +88,7 @@ object Atmosphere {
     recursiveLoad(new File(soundsRootPath))
 
     log("Generating html files...")
-    generateHTML(soundLibs);
+    generateHTMLFiles(soundLibs);
     log("Generating html files DONE")
 
     var statusOutput = ""
@@ -93,11 +107,25 @@ object Atmosphere {
 object Prototype{
   val placeholder = "PLACEHOLDER"
   val hrefPlaceholder = "HREFPLACEHOLDER"
-  val buttonFolder: String =  "<a class=\"btn btn-default btn-block\" href=\""+hrefPlaceholder+"\">"+placeholder+"</a>"
-  val buttonFile: String =    "<a class=\"btn btn-default btn-block\" href=\""+hrefPlaceholder+"\">"+placeholder+"</a>"
+  val btnPlaceholder = "BTNPLACEHOLDER"
+  val playPlaceholder = "PLAYPLACEHOLDER"
+  val pausePlaceholder = "PAUSEPLACEHOLDER"
+  val repeatPlaceholder = "REPEATPLACEHOLDER"
+
+  val buttonFolder: String =  "<a class=\"btn btn-default btn-block\" href=\"" + hrefPlaceholder + "\">"+placeholder+"</a>"
+  val buttonFile: String =    "<a class=\"btn btn-default btn-block " + btnPlaceholder + "\" href=\"" + hrefPlaceholder + "\">"+placeholder+"</a>"
   val options: String =
-    "<div class=\"btn-group\">\n" +
-      "<button type=\"button\" class=\"btn btn-primary\"><span class=\"glyphicon glyphicon-play\"></span></button>\n" +
-      "<button type=\"button\" class=\"btn btn-primary\"><span class=\"glyphicon glyphicon-pause\"></span></button>\n" +
-    "</div>"
+    s"""
+      <div class="btn-group">
+       <a class="btn btn-primary" href="$playPlaceholder">
+          <span class="glyphicon glyphicon-play"></span>
+       </a>
+       <a class="btn btn-primary" href="$pausePlaceholder">
+          <span class="glyphicon glyphicon-pause"></span>
+       </a>
+       <a class="btn btn-primary" href="$repeatPlaceholder">
+          <span class="glyphicon glyphicon-repeat"></span>
+       </a>
+      </div>
+    """.stripMargin
 }

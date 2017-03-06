@@ -17,16 +17,16 @@ class SocketServerConnection(val socket:Socket) extends Thread{
 
   def evaluateInput(input: String):Response = {
     var request = input.replaceFirst("GET /", "").replaceFirst(" HTTP/.*", "")
-    if(request == " " || request == "index"){ //index
+    if(request == " " || request.contains("index")){ //index
       new IndexResponse()
     }else {
       var library:Option[SoundLib] = null
       //check if a lib or a file is requested
       if(request.contains("FILE")){ //FILE/Lib/file
         request = request.replaceAll("LIB/", "")
-        new FileResponse(request.replaceFirst("FILE/", ""))
+        new FileResponse(request.replaceAll("FILE/", ""))
       }else if(request.contains("LIB") && {
-        request = request.replaceFirst("LIB/", "")
+        request = request.replaceAll("LIB/", "")
         library = Atmosphere.soundLibs.get(request)
         library.nonEmpty
       }){
@@ -47,11 +47,10 @@ class SocketServerConnection(val socket:Socket) extends Thread{
 
     val pw = new PrintWriter(socket.getOutputStream)
     pw.write(response.gen())
-    pw.flush()
-    log("Server sent index to : " + socket.getRemoteSocketAddress)
-
-    in.close()
     pw.close()
+    in.close()
+    log("Server sent response to : " + socket.getRemoteSocketAddress)
+
     log("Connection closed to: " + socket.getRemoteSocketAddress)
   }
 

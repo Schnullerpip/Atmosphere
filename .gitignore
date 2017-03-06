@@ -3,3 +3,4 @@ sounds
 tmp
 *.iml
 out/
+tmp/
