@@ -45,14 +45,14 @@ object Atmosphere {
             .replaceFirst(Prototype.btnPlaceholder, if (s._2.isPlaying) "btn-info" else "")
             .replaceFirst(Prototype.placeholder,
               {if(s._2.isPlaying)"<span class=\"glyphicon glyphicon-play\"></span>"
-              //else if(s._2.isPaused)"<span class=\"glyphicon glyphicon-pause\"></span>"
+              else if(s._2.isPaused)"<span class=\"glyphicon glyphicon-pause\"></span>"
               else ""} +
               s._1) +
           "</td><td>" +
           Prototype.options
-            .replaceFirst(Prototype.playPlaceholder,"FILE/" + lib._1 + "/" + s._1)
+            .replaceFirst(Prototype.playPlaceholder,  "FILE/" + lib._1 + "/" + s._1)
             .replaceFirst(Prototype.pausePlaceholder, "FILE/PAUSE/" + lib._1 + "/" + s._1)
-            .replaceFirst(Prototype.repeatPlaceholder, "FILE/LOOP/" + lib._1 + "/" + s._1) +
+            .replaceFirst(Prototype.repeatPlaceholder,"FILE/LOOP/" + lib._1 + "/" + s._1) +
           "</td></tr>"
     }.mkString)
     br.write(out)

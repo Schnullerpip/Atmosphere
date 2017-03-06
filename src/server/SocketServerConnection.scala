@@ -17,16 +17,21 @@ class SocketServerConnection(val socket:Socket) extends Thread{
 
   def evaluateInput(input: String):Response = {
     var request = input.replaceFirst("GET /", "").replaceFirst(" HTTP/.*", "")
-    if(request == " " || request.contains("index")){ //index
+    if(request == "" || request.contains("index")){ //index
       new IndexResponse()
     }else {
       var library:Option[SoundLib] = null
       //check if a lib or a file is requested
-      if(request.contains("FILE")){ //FILE/Lib/file
+      if(request.contains(".wav")){ //FILE/Lib/file
         request = request.replaceAll("LIB/", "")
-        new FileResponse(request.replaceAll("FILE/", ""))
+        request = request.replaceAll("FILE/", "")
+        val args = request.split("/").toSet
+        request = args.head + "/" + args.tail.head
+        new FileResponse(request)
       }else if(request.contains("LIB") && {
         request = request.replaceAll("LIB/", "")
+        request = request.replaceAll("FILE/", "")
+        request = request.split("/").last
         library = Atmosphere.soundLibs.get(request)
         library.nonEmpty
       }){
@@ -41,9 +46,20 @@ class SocketServerConnection(val socket:Socket) extends Thread{
     val in = new BufferedReader(new InputStreamReader(socket.getInputStream))
     log("Server connected to " + socket.getRemoteSocketAddress)
 
-    var input = in.readLine()
-    log("Routing input:" + input)
-    val response = evaluateInput(input)
+    var input = ""
+    var request = in.readLine()
+    var conti = true
+
+    println(request)
+    while(conti){
+      input = in.readLine()
+      if(input == "")
+        conti = false
+      else
+        println(input)
+    }
+    log("Routing input:" + request)
+    val response = evaluateInput(request)
 
     val pw = new PrintWriter(socket.getOutputStream)
     pw.write(response.gen())
