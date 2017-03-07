@@ -1,6 +1,8 @@
 package server
 
-import java.net.ServerSocket
+import java.io.{BufferedWriter, File, FileWriter}
+import java.net.{InetAddress, ServerSocket}
+
 import utils.logger.Logger
 
 /**
@@ -11,7 +13,13 @@ case class ServerSecretary(port:Int) {
   private var connections = List[SocketServerConnection]()
   log("Starting server on port" + port)
   private val socket :ServerSocket = new ServerSocket(port)
-  log("Set up server socket: " + socket.getLocalSocketAddress + ". Now listening")
+
+  log("Set up server socket: " + InetAddress.getLocalHost + ":" + port  +" Now listening")
+
+  //write the link (ipadresse+port) to a tmp file so user can grab it from there
+  val linkFile = new File("tmp/"+InetAddress.getLocalHost.toString.replaceFirst(".*/", "")+":"+port)
+  if(!linkFile.exists())
+    linkFile.createNewFile()
 
   def listen() = {
         while(continue){
