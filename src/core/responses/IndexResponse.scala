@@ -14,10 +14,9 @@ class IndexResponse extends Response{
       for( lib <- Atmosphere.soundLibs) yield {
         val a = Prototype.buttonFolder.replaceFirst(Prototype.placeholder, lib._1 + " <span class=\"badge\">" +
             lib._2.size + "</span></a><br>")
-        val b = a.replaceFirst(Prototype.hrefPlaceholder, "LIB/" + lib._1)
         "\t\t\t<tr><td>" +
           Prototype.buttonFolder
-            .replaceFirst(Prototype.hrefPlaceholder, "LIB/" + lib._1)
+            .replaceFirst(Prototype.hrefPlaceholder, "LIB=" + lib._1)
             .replaceFirst(Prototype.placeholder, lib._1 + " <span class=\"badge\">" +
             lib._2.size + "</span></a><br>") + "</td><td>" + Prototype.options + "</td></tr>"
       }}.mkString)

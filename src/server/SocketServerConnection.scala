@@ -3,10 +3,10 @@ package server
 import java.io._
 import java.net.Socket
 
-import core.cliphandler.SoundLib
-import core.responses._
-import main.{Atmosphere, Prototype}
 import utils.logger.Logger
+
+import core.requestResolver.RequestResolver._
+import core.responses._
 
 /**
   * Created by julian on 04-Mar-17.
@@ -16,29 +16,23 @@ class SocketServerConnection(val socket:Socket) extends Thread{
   log("incoming connection accepted from: " + socket.getRemoteSocketAddress, "Constructor")
 
   def evaluateInput(input: String):Response = {
-    var request = input.replaceFirst("GET /", "").replaceFirst(" HTTP/.*", "")
-    if(request == "" || request.contains("index")){ //index
-      new IndexResponse()
-    }else {
-      var library:Option[SoundLib] = null
-      //check if a lib or a file is requested
-      if(request.contains(".wav")){ //FILE/Lib/file
-        request = request.replaceAll("LIB/", "")
-        request = request.replaceAll("FILE/", "")
-        val args = request.split("/").toSet
-        request = args.head + "/" + args.tail.head
-        new FileResponse(request)
-      }else if(request.contains("LIB") && {
-        request = request.replaceAll("LIB/", "")
-        request = request.replaceAll("FILE/", "")
-        request = request.split("/").last
-        library = Atmosphere.soundLibs.get(request)
-        library.nonEmpty
-      }){
-        new LibResponse(request)
-      }else{
-        new NotFoundResponse()
-      }
+
+    //check if request is for index
+    {
+      val request = input.replaceAll("GET /", "").replaceAll("HTTP/.*\\..*", "")
+      if ( request == " " || request == "index " )
+        return new IndexResponse()
+      else if( request == "favicon.ico ") //TODO return a favicon when one exists
+        return new NotFoundResponse()
+    }
+
+    //parse the input and reduce it to the relevant information - if successfully parsed call the response constructor
+    val responseParsing = parse(request, input)
+    if(responseParsing.successful){
+      val responseConstructor = responseParsing.get
+      responseConstructor()
+    }else{
+      new NotFoundResponse()
     }
   }
 
@@ -46,18 +40,8 @@ class SocketServerConnection(val socket:Socket) extends Thread{
     val in = new BufferedReader(new InputStreamReader(socket.getInputStream))
     log("Server connected to " + socket.getRemoteSocketAddress)
 
-    var input = ""
-    var request = in.readLine()
-    var conti = true
+    val request = in.readLine()
 
-    println(request)
-    while(conti){
-      input = in.readLine()
-      if(input == "")
-        conti = false
-      else
-        println(input)
-    }
     log("Routing input:" + request)
     val response = evaluateInput(request)
 

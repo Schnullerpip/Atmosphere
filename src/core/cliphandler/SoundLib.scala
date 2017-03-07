@@ -3,6 +3,8 @@ package core.cliphandler
 import java.io.File
 import javax.sound.sampled.{AudioSystem, Clip}
 
+import utils.logger.Logger
+
 /**
   * Created by julian on 04-Mar-17.
   */
@@ -14,10 +16,12 @@ case class SoundLib(map:Map[String, Sound]){
   def size = sounds.size
 }
 
-case class Sound(file:File){
+case class Sound(val file:File){
 
   var isPlaying = false
   var isPaused = false
+
+  def log(msg:String, method:String = "play", location:String = "SoundLib.scala::Sound") = Logger(msg, location, method)
 
   lazy val clip:Clip = {
     if(file.exists()){
@@ -36,26 +40,36 @@ case class Sound(file:File){
     }
     if(!isPaused)
       clip setFramePosition 0
-    isPaused = false
     clip start()
+
+    isPaused = false
     isPlaying = true
+    log("PLAY sound: " + file.getName)
   }
 
   def loop = {
-    isPaused = false
     clip loop Clip.LOOP_CONTINUOUSLY
+
+    isPaused = false
     isPlaying = true
+    log("LOOP sound: " + file.getName, "loop")
   }
 
   def stop = {
-    pause
+    clip stop()
     clip setFramePosition 0
+
+    isPlaying = false
+    isPaused = false
+    log("STOP sound: " + file.getName, "stop")
   }
 
   def pause = {
     clip stop()
+
     isPlaying = false
     isPaused = true
+    log("PAUSE sound: " + file.getName, "pause")
   }
 }
 

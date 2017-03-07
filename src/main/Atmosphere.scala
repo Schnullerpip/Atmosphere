@@ -41,7 +41,7 @@ object Atmosphere {
       for (s <- lib._2.sounds) yield
         "\t\t\t<tr><td>" +
           Prototype.buttonFile
-            .replaceFirst(Prototype.hrefPlaceholder, "FILE/" + lib._1 + "/" + s._1)
+            .replaceFirst(Prototype.hrefPlaceholder, "LIB=" + lib._1 + ";FILE=" + s._1 + ";MODE=PLAY")
             .replaceFirst(Prototype.btnPlaceholder, if (s._2.isPlaying) "btn-info" else "")
             .replaceFirst(Prototype.placeholder,
               {if(s._2.isPlaying)"<span class=\"glyphicon glyphicon-play\"></span>"
@@ -50,9 +50,9 @@ object Atmosphere {
               s._1) +
           "</td><td>" +
           Prototype.options
-            .replaceFirst(Prototype.playPlaceholder,  "FILE/" + lib._1 + "/" + s._1)
-            .replaceFirst(Prototype.pausePlaceholder, "FILE/PAUSE/" + lib._1 + "/" + s._1)
-            .replaceFirst(Prototype.repeatPlaceholder,"FILE/LOOP/" + lib._1 + "/" + s._1) +
+            .replaceFirst(Prototype.playPlaceholder,  "LIB=" + lib._1 + ";FILE=" + s._1 + ";MODE=PLAY")
+            .replaceFirst(Prototype.pausePlaceholder, "LIB=" + lib._1 + ";FILE=" + s._1 + ";MODE=PAUSE")
+            .replaceFirst(Prototype.repeatPlaceholder,"LIB=" + lib._1 + ";FILE=" + s._1 + ";MODE=LOOP") +
           "</td></tr>"
     }.mkString)
     br.write(out)
