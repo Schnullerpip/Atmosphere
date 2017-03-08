@@ -35,14 +35,20 @@ class SocketServerConnection(val socket:Socket) extends Thread{
     }
   }
 
-  override def run() = {
+  override def run():Unit = {
     val in = new BufferedReader(new InputStreamReader(socket.getInputStream))
     log("Server connected to " + socket.getRemoteSocketAddress)
 
-    val request = in.readLine()
+    val response = {
+      val request = in.readLine()
 
-    log("Routing input:" + request)
-    val response = evaluateInput(request)
+      if(request != null){
+        log("Routing input:" + request)
+        evaluateInput(request)
+      }else{
+        new NotFoundResponse()
+      }
+    }
 
     val pw = new PrintWriter(socket.getOutputStream)
     pw.write(response.gen())
