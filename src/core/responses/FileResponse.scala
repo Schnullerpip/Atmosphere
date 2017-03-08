@@ -19,7 +19,7 @@ class FileResponse(val libName:String, fileArg:String, mode:MODE) extends Respon
       case _ => file.get.play
     }
 
-  override val html: String = {
+  override def html: String = {
     Atmosphere.generateHTML(libName, lib.get)
   }
 }

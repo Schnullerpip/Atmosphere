@@ -9,10 +9,7 @@ import main.Atmosphere
 class LibResponse(path:String) extends Response{
   val lib: Option[SoundLib] = Atmosphere.soundLibs.get(path)
 
-  override val html: String = {
-    //val indexSource = io.Source.fromFile("tmp/" + path + ".html")
-    //try indexSource.mkString finally indexSource.close()
-
+  override def html: String = {
     Atmosphere.generateHTML(path, lib.get)
   }
 }

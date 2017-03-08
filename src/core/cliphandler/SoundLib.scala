@@ -56,12 +56,14 @@ case class Sound(file:File){
   }
 
   def stop = {
-    clip stop()
-    clip setFramePosition 0
+    if(isPlaying){
+      clip stop()
+      clip setFramePosition 0
 
-    isPlaying = false
-    isPaused = false
-    log("STOP sound: " + file.getName, "stop")
+      isPlaying = false
+      isPaused = false
+      log("STOP sound: " + file.getName, "stop")
+    }
   }
 
   def pause = {
