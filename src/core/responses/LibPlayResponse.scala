@@ -9,6 +9,7 @@ import utils.logger.Logger
   */
 
 object LibPlayResponse{
+  private var isWaiting = false
   private var uniquePlaylists:Map[String, LibPlayResponse] = Map()
 
   def apply(libName:String): LibPlayResponse = {
@@ -37,7 +38,8 @@ class LibPlayResponse(val libName:String) extends Response{
 
   def killPlaylist(): Unit = {
     Logger("Killing the whole playlist " + libName, "LibPlayResponse.scala", "killPlaylist")
-    currentlyPlaying foreach {_.stop}
+    //currentlyPlaying foreach {_.stop}
+    Atmosphere.soundLibs(libName).sounds.foreach(_._2.stop)
     playListTraverser.continue = false
     LibPlayResponse.uniquePlaylists = LibPlayResponse.uniquePlaylists.filter(entry => entry._1 != libName)
   }
@@ -83,6 +85,7 @@ class LibPlayResponse(val libName:String) extends Response{
           playAll()
         case LOOP =>
           playListTraverser.start()
+          Thread.sleep(200)
         case _ =>
           killPlaylist()
       }
@@ -90,7 +93,7 @@ class LibPlayResponse(val libName:String) extends Response{
     this
   }
 
-  override val html: String = {
+  override def html: String = {
     new IndexResponse().html //this loads the new index page
   }
 }

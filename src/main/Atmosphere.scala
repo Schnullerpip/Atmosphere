@@ -112,7 +112,7 @@ object Prototype{
   val pausePlaceholder = "PAUSEPLACEHOLDER"
   val repeatPlaceholder = "REPEATPLACEHOLDER"
 
-  val buttonFolder: String =  "<a class=\"btn btn-default btn-block\" href=\"" + hrefPlaceholder + "\">"+placeholder+"</a>"
+  val buttonFolder: String =  "<a class=\"btn btn-default btn-block " + btnPlaceholder + "\" href=\"" + hrefPlaceholder + "\">"+placeholder+"</a>"
   val buttonFile: String =    "<a class=\"btn btn-default btn-block " + btnPlaceholder + "\" href=\"" + hrefPlaceholder + "\">"+placeholder+"</a>"
   val options: String =
     s"""

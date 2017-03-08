@@ -5,5 +5,5 @@ package core.responses
   */
 class NotFoundResponse extends Response{
   override val HEAD = "HTTP/1.1 404 Not Found"
-  override val html: String = "<h1> 404 Not Found</h>"
+  override def html: String = "<h1> 404 Not Found</h>"
 }
