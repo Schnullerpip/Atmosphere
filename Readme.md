@@ -13,7 +13,7 @@ it **generates html files**, so whatever kind of sounds someone wants to manage 
 
 subfolders are registered and stored as "libs"
 
-Feel free to **fork/contribute **
+Feel free to **fork/contribute**
 have fun
 stay sharp
 make Donald Drumpf again!
