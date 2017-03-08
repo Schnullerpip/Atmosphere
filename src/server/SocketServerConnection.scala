@@ -3,10 +3,9 @@ package server
 import java.io._
 import java.net.Socket
 
-import utils.logger.Logger
-
 import core.requestResolver.RequestResolver._
 import core.responses._
+import utils.logger.Logger
 
 /**
   * Created by julian on 04-Mar-17.

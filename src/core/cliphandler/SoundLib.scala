@@ -16,7 +16,7 @@ case class SoundLib(map:Map[String, Sound]){
   def size = sounds.size
 }
 
-case class Sound(val file:File){
+case class Sound(file:File){
 
   var isPlaying = false
   var isPaused = false
