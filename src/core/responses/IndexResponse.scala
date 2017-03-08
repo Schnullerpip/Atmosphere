@@ -17,8 +17,13 @@ class IndexResponse extends Response{
         "\t\t\t<tr><td>" +
           Prototype.buttonFolder
             .replaceFirst(Prototype.hrefPlaceholder, "LIB=" + lib._1)
-            .replaceFirst(Prototype.placeholder, lib._1 + " <span class=\"badge\">" +
-            lib._2.size + "</span></a><br>") + "</td><td>" + Prototype.options + "</td></tr>"
+            .replaceFirst(Prototype.placeholder, lib._1 + " <span class=\"badge\">" + lib._2.size + "</span></a><br>") +
+          "</td><td>" +
+            Prototype.options
+              .replaceFirst(Prototype.playPlaceholder, "LIB=" + lib._1 + ";MODE=PLAY")
+              .replaceFirst(Prototype.pausePlaceholder, "LIB=" + lib._1 + ";MODE=PAUSE")
+              .replaceFirst(Prototype.repeatPlaceholder, "LIB=" + lib._1 + ";MODE=LOOP")+
+          "</td></tr>"
       }}.mkString)
     index
   }
