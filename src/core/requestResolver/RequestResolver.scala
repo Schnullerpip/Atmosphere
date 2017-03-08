@@ -19,14 +19,23 @@ object RequestResolver extends JavaTokenParsers{
     (("GET" ~> "/") ~> ("LIB" ~> "=" ~> ident)) ~
     ((";FILE=" ~> """\w[\w\d]+\.wav""".r)?) ~
     (((";" ~> "MODE" ~> "=" ~> """(PLAY|PAUSE|LOOP)""".r)?) <~ "HTTP" <~ "/" <~ """\d\.\d""".r) ^^ {
+
     case lib ~ None ~ None => () => new LibResponse(lib)
+
     case lib ~ Some(name) ~ mode => () => new FileResponse(lib, name, mode match {
       case Some("PLAY") => PLAY
       case Some("PAUSE") => PAUSE
       case Some("LOOP") => LOOP
       case _ => PLAY
     })
-    case lib ~ None ~ mode => () => new LibPlayResponse(lib)
+
+    case lib ~ None ~ mode => () => LibPlayResponse(lib).act(mode match {
+      case Some("PLAY") => PLAY
+      case Some("PAUSE") => PAUSE
+      case Some("LOOP") => LOOP
+      case _ => PLAY
+    })
+
     case _ => () => new NotFoundResponse()
   }
 }
