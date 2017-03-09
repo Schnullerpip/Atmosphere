@@ -12,6 +12,18 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <!-- Latest compiled JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <!-- javascript supposed to establish continuous connection with server to get information about clip progress -->
+    <script>
+        function httpGet(theUrl)
+        {
+            var xmlHttp = new XMLHttpRequest();
+            xmlHttp.open( "GET", theUrl, false ); // false for synchronous request
+            xmlHttp.send( null );
+            return xmlHttp.responseText;
+        }
+    </script>
+
     <title>LIBNAME</title>
 </head>
 <body>
@@ -31,5 +43,26 @@
         </tbody>
     </table>
 </div>
+
+<script>
+        window.setInterval(function() {
+            var progressResponse = httpGet("LIB=LIBNAME;MODE=PROGRESS");
+            var idProgressPairs = progressResponse.split(";").filter(function(arg){return arg != ""});
+            idProgressPairs = idProgressPairs.map(function(item){
+                var idPro = item.split(":");
+                return {
+                    id: idPro[0],
+                    progress: idPro[1]
+                };
+            });
+
+            idProgressPairs.forEach(function(pair){
+                console.log(pair.id);
+                console.log(document.getElementById(pair.id));
+                document.getElementById(pair.id).setAttribute("aria-valuenow", pair.progress);
+                document.getElementById(pair.id).setAttribute("style", "width:"+pair.progress+"%");
+            });
+        }, 1000);
+    </script>
 </body>
 </html>

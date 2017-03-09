@@ -19,6 +19,7 @@ case class SoundLib(map:Map[String, Sound]){
 case class Sound(file:File){
 
   var isPlaying = false
+  var isLooping = false
   var isPaused = false
 
   def log(msg:String, method:String = "play", location:String = "SoundLib.scala::Sound") = Logger(msg, location, method)
@@ -43,6 +44,7 @@ case class Sound(file:File){
     clip start()
 
     isPaused = false
+    isLooping = false
     isPlaying = true
     log("PLAY sound: " + file.getName)
   }
@@ -52,6 +54,7 @@ case class Sound(file:File){
 
     isPaused = false
     isPlaying = true
+    isLooping = true
     log("LOOP sound: " + file.getName, "loop")
   }
 
@@ -61,6 +64,7 @@ case class Sound(file:File){
       clip setFramePosition 0
 
       isPlaying = false
+      isLooping = false
       isPaused = false
       log("STOP sound: " + file.getName, "stop")
     }

@@ -13,11 +13,13 @@ trait MODE
 case object PLAY extends MODE
 case object PAUSE extends MODE
 case object LOOP extends MODE
+case object PROGRESS extends MODE
 
 trait Response {
   val HEAD = "HTTP/1.1 200 OK\r\nContent-type: text/html\r\n\r\n"
   def html:String
   def gen() = {
-    HEAD + html
+    val out = HEAD + html
+    out
   }
 }

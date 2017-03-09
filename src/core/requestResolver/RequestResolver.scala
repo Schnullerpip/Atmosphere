@@ -9,7 +9,6 @@ import scala.util.parsing.combinator.JavaTokenParsers
   */
 object RequestResolver extends JavaTokenParsers{
 
-
   /**
     * parsers the http request for FILE, LIB, and MODE arguments
     * @return returns a lambda that constructs the respective Response, so the caller of this method
@@ -18,24 +17,27 @@ object RequestResolver extends JavaTokenParsers{
   def request:Parser[() => Response] =
     (("GET" ~> "/") ~> ("LIB" ~> "=" ~> ident)) ~
     ((";FILE=" ~> """\w[\w\d]+\.wav""".r)?) ~
-    (((";" ~> "MODE" ~> "=" ~> """(PLAY|PAUSE|LOOP)""".r)?) <~ "HTTP" <~ "/" <~ """\d\.\d""".r) ^^ {
+    (((";" ~> "MODE" ~> "=" ~> """(PLAY|PAUSE|LOOP|PROGRESS)""".r)?) <~ "HTTP" <~ "/" <~ """\d\.\d""".r) ^^ {
 
-    case lib ~ None ~ None => () => new LibResponse(lib)
+      case lib ~ None ~ None => () => new LibResponse(lib)
 
-    case lib ~ Some(name) ~ mode => () => new FileResponse(lib, name, mode match {
-      case Some("PLAY") => PLAY
-      case Some("PAUSE") => PAUSE
-      case Some("LOOP") => LOOP
-      case _ => PLAY
-    })
+      case lib ~ Some(name) ~ mode if !mode.contains("PROGRESS") => () => new FileResponse(lib, name, mode match {
+        case Some("PLAY") => PLAY
+        case Some("PAUSE") => PAUSE
+        case Some("LOOP") => LOOP
+        case _ => PLAY
+      })
 
-    case lib ~ None ~ mode => () => LibPlayResponse(lib).act(mode match {
-      case Some("PLAY") => PLAY
-      case Some("PAUSE") => PAUSE
-      case Some("LOOP") => LOOP
-      case _ => PLAY
-    })
+      case lib ~ None ~ Some("PROGRESS") =>
+        () => new ProgressResponse(lib)
 
-    case _ => () => new NotFoundResponse()
+      case lib ~ None ~ mode => () => LibPlayResponse(lib).act(mode match {
+        case Some("PLAY") => PLAY
+        case Some("PAUSE") => PAUSE
+        case Some("LOOP") => LOOP
+        case _ => PLAY
+      })
+
+      case _ => () => new NotFoundResponse()
   }
 }

@@ -42,7 +42,12 @@ object Atmosphere {
         "\t\t\t<tr><td>" +
           Prototype.buttonFile
             .replaceFirst(Prototype.hrefPlaceholder, "LIB=" + lib._1 + ";FILE=" + s._1 + ";MODE=PLAY")
-            .replaceFirst(Prototype.btnPlaceholder, if (s._2.isPlaying) "btn-info" else "")
+            .replaceFirst(Prototype.btnPlaceholder, if (s._2.isPlaying)
+              """progress-bar" role="progressbar"
+                aria-valuenow="0"  aria-valuemin="0"
+                aria-valuemax="100" style="width:0%"
+              """ else "")
+            .replaceFirst(Prototype.idPlaceHolder, s._1)
             .replaceFirst(Prototype.placeholder,
               {if(s._2.isPlaying)"<span class=\"glyphicon glyphicon-play\"></span>"
               else if(s._2.isPaused)"<span class=\"glyphicon glyphicon-pause\"></span>"
@@ -111,9 +116,12 @@ object Prototype{
   val playPlaceholder = "PLAYPLACEHOLDER"
   val pausePlaceholder = "PAUSEPLACEHOLDER"
   val repeatPlaceholder = "REPEATPLACEHOLDER"
+  val scriptPlaceholder = "SCRIPTPLACEHOLDER"
+  val idPlaceHolder = "IDPLACEHOLDER"
 
   val buttonFolder: String =  "<a class=\"btn btn-default btn-block " + btnPlaceholder + "\" href=\"" + hrefPlaceholder + "\">"+placeholder+"</a>"
-  val buttonFile: String =    "<a class=\"btn btn-default btn-block " + btnPlaceholder + "\" href=\"" + hrefPlaceholder + "\">"+placeholder+"</a>"
+  val buttonFile: String =    "<a id=\""+ idPlaceHolder +"\" class=\"btn btn-default btn-block " + btnPlaceholder +
+    "\" href=\"" + hrefPlaceholder + "\">"+placeholder+"</a>"
   val options: String =
     s"""
       <div class="btn-group">
