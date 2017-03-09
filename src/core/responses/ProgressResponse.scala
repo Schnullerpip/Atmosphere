@@ -14,7 +14,6 @@ class ProgressResponse(libName:String) extends Response{
         val fPos = ns._2.clip.getFramePosition % ns._2.clip.getFrameLength
         val fLen = ns._2.clip.getFrameLength
         val p = (fPos*1.0/fLen)*100.0
-        println(p)
         if(p >= 100){
           ns._1 + ":" + 100 + ";"
         }else
