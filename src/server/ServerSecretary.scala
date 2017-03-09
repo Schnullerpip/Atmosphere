@@ -11,6 +11,7 @@ import utils.logger.Logger
 case class ServerSecretary(port:Int) {
   private var continue = true
   private var connections = List[SocketServerConnection]()
+
   log("Starting server on port" + port)
   private val socket :ServerSocket = new ServerSocket(port)
 
@@ -23,7 +24,7 @@ case class ServerSecretary(port:Int) {
 
   def listen() = {
         while(continue){
-          log("Server listening on port: " + port + " - waiting for connection")
+          log("Server listening on port: " + port + " - waiting for connection", "listen")
           val incomingConnection = socket.accept()
 
           if(!connections.exists( c => c.socket.getInetAddress == incomingConnection.getInetAddress && c.isAlive)) {
@@ -36,6 +37,7 @@ case class ServerSecretary(port:Int) {
 
   listen()
 
+  //simplification for call to Logger
   def log(msg:String, method:String = null): Unit = {
     if(method == null) Logger(msg, Some("ServerSecretary.scala"), Some("Constructor"))
     else Logger(msg, "ServerSecretary.scala", method)

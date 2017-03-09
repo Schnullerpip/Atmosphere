@@ -1,10 +1,15 @@
 package core.responses
 
-import main.{Atmosphere, Prototype}
+import core.Prototype
+import main.Atmosphere
 
 /**
   * Created by julian on 05-Mar-17.
+  * The response that generates the index page
   */
+object IndexResponse {
+  def apply() = new IndexResponse
+}
 class IndexResponse extends Response{
   override def html: String = {
     val indexSource = io.Source.fromFile("web/index.html")

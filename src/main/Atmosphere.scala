@@ -2,6 +2,7 @@ package main
 
 import java.io.{BufferedWriter, File, FileWriter}
 
+import core.Prototype
 import core.cliphandler._
 import core.datafetch.DataFetch
 import server.ServerSecretary
@@ -12,27 +13,37 @@ import utils.logger.Logger
   */
 object Atmosphere {
 
+  //static fixed references
   private val port = 50777
   private val soundsRootPath = "sounds"
 
+  //Map containing all the soundlibs
   var soundLibs: Map[String, SoundLib] = Map[String, SoundLib]()
 
+  //simplification for calls to Logger object
   def logprototype(msg:String, method:String = null): Unit = {
     if(method == null) Logger(msg, Some("Atmosphere.scala"), None)
     else Logger(msg, "Atmosphere.scala", method)
   }
 
+  /**
+    * generates .html files for all the libs given
+    * @param soundLibs the map containing all the string -> SoundLib mappings*/
   def generateHTMLFiles(soundLibs: Map[String, SoundLib]): Unit = {
     soundLibs foreach{lib => generateHTML(lib)}
   }
 
+  /**
+    * generates the .html file for a specific soundLib
+    * @param lib a tuple String -> SoundLib
+    * @return the content of the generated .html file, just in case you want to use it directly*/
   def generateHTML(lib:(String, SoundLib)):String = {
 
     val newFile = new File("tmp/" + lib._1 + ".html")
     if (!newFile.exists())
       newFile.createNewFile()
 
-    val br = new BufferedWriter(new FileWriter(newFile))
+    val bw = new BufferedWriter(new FileWriter(newFile))
 
     val prototype = io.Source.fromFile("web/prototype.html")
     var text = try prototype.mkString finally prototype.close()
@@ -58,8 +69,8 @@ object Atmosphere {
             .replaceFirst(Prototype.repeatPlaceholder,"LIB=" + lib._1 + ";FILE=" + s._1 + ";MODE=LOOP") +
           "</td></tr>"
     }.mkString)
-    br.write(out)
-    br.close()
+    bw.write(out)
+    bw.close()
     out
   }
 
@@ -75,10 +86,10 @@ object Atmosphere {
 
       //load the library
       if(files.nonEmpty){
-        log("Loading " + rootName + " library")
+        log("Loading library " + rootName)
         //create map containing all the .wav files
         var sounds = files filter (f => f.getName.contains(".wav")) map (s => s.getName -> Sound(s)) toMap;
-        log("Loading" + rootName + " library - done")
+        log("Loading library " + rootName + " -  DONE")
 
         //introduce the new soundLib to the soundLibs map
         soundLibs = soundLibs + (root.getName -> SoundLib(sounds))
@@ -91,57 +102,16 @@ object Atmosphere {
     recursiveLoad(new File(soundsRootPath))
 
     log("Generating html files...")
-    generateHTMLFiles(soundLibs);
-    log("Generating html files DONE")
+    generateHTMLFiles(soundLibs)
+    log("Generating html files - DONE")
 
     var statusOutput = ""
     soundLibs foreach { e =>
-      statusOutput += "; " + e._1
+      statusOutput += e._1 + "; "
     }
 
     log("Loaded the libraries:" + statusOutput)
-    log("Generating index file according to loaded libraries")
     log("Starting Server")
     ServerSecretary(port)
-
   }
-}
-
-object Prototype{
-  val placeholder = "PLACEHOLDER"
-  val hrefPlaceholder = "HREFPLACEHOLDER"
-  val btnPlaceholder = "BTNPLACEHOLDER"
-  val playPlaceholder = "PLAYPLACEHOLDER"
-  val pausePlaceholder = "PAUSEPLACEHOLDER"
-  val repeatPlaceholder = "REPEATPLACEHOLDER"
-  val scriptPlaceholder = "SCRIPTPLACEHOLDER"
-  val idPlaceHolder = "IDPLACEHOLDER"
-  val progressPlaceholder = "PROGRESSPLACEHOLDER"
-  val progressBar =
-    s"""
-      <div class="progress">
-        <div class="progress-bar progress-bar-striped active" role="progressbar" id="$idPlaceHolder"
-          aria-valuenow="0"  aria-valuemin="0"
-          aria-valuemax="100" style="width:0%">
-        </div>
-      </div>
-    """
-
-  val buttonFolder: String =  "<a class=\"btn btn-default btn-block " + btnPlaceholder + "\" href=\"" + hrefPlaceholder + "\">"+placeholder+"</a>"
-  val buttonFile: String =    "<a class=\"btn btn-default btn-block " + btnPlaceholder +
-    "\" href=\"" + hrefPlaceholder + "\">"+placeholder + progressPlaceholder + "</a>"
-  val options: String =
-    s"""
-      <div class="btn-group">
-       <a class="btn btn-primary" href="$playPlaceholder">
-          <span class="glyphicon glyphicon-play"></span>
-       </a>
-       <a class="btn btn-primary" href="$pausePlaceholder">
-          <span class="glyphicon glyphicon-pause"></span>
-       </a>
-       <a class="btn btn-primary" href="$repeatPlaceholder">
-          <span class="glyphicon glyphicon-repeat"></span>
-       </a>
-      </div>
-    """.stripMargin
 }

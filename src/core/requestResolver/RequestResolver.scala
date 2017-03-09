@@ -19,9 +19,9 @@ object RequestResolver extends JavaTokenParsers{
     ((";FILE=" ~> """\w[\w\d]+\.wav""".r)?) ~
     (((";" ~> "MODE" ~> "=" ~> """(PLAY|PAUSE|LOOP|PROGRESS)""".r)?) <~ "HTTP" <~ "/" <~ """\d\.\d""".r) ^^ {
 
-      case lib ~ None ~ None => () => new LibResponse(lib)
+      case lib ~ None ~ None => () => LibResponse(lib)
 
-      case lib ~ Some(name) ~ mode if !mode.contains("PROGRESS") => () => new FileResponse(lib, name, mode match {
+      case lib ~ Some(name) ~ mode if !mode.contains("PROGRESS") => () => FileResponse(lib, name, mode match {
         case Some("PLAY") => PLAY
         case Some("PAUSE") => PAUSE
         case Some("LOOP") => LOOP
@@ -29,7 +29,7 @@ object RequestResolver extends JavaTokenParsers{
       })
 
       case lib ~ None ~ Some("PROGRESS") =>
-        () => new ProgressResponse(lib)
+        () => ProgressResponse(lib)
 
       case lib ~ None ~ mode => () => LibPlayResponse(lib).act(mode match {
         case Some("PLAY") => PLAY
@@ -38,6 +38,6 @@ object RequestResolver extends JavaTokenParsers{
         case _ => PLAY
       })
 
-      case _ => () => new NotFoundResponse()
+      case _ => () => NotFoundResponse
   }
 }
