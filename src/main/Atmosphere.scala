@@ -46,9 +46,9 @@ object Atmosphere {
             .replaceFirst(Prototype.progressPlaceholder, if(s._2.isPlaying)Prototype.progressBar else "")
             .replaceFirst(Prototype.idPlaceHolder, s._1)
             .replaceFirst(Prototype.placeholder,
-              {if(s._2.isLooping)"<span class=\"glyphicon glyphicon-repeat\"></span>"
-              else if(s._2.isPlaying)"<span class=\"glyphicon glyphicon-play\"></span>"
-              else if(s._2.isPaused)"<span class=\"glyphicon glyphicon-pause\"></span>"
+              {if(s._2.isLooping)" <span class=\"glyphicon glyphicon-repeat\"></span>"
+              else if(s._2.isPlaying)" <span class=\"glyphicon glyphicon-play\"></span>"
+              else if(s._2.isPaused)" <span class=\"glyphicon glyphicon-pause\"></span>"
               else ""} +
               s._1) +
           "</td><td>" +
