@@ -45,7 +45,7 @@
 </div>
 
 <script>
-        window.setInterval(function() {
+        function progresser() {
             var progressResponse = httpGet("LIB=LIBNAME;MODE=PROGRESS");
             var idProgressPairs = progressResponse.split(";").filter(function(arg){return arg != ""});
             idProgressPairs = idProgressPairs.map(function(item){
@@ -62,7 +62,10 @@
                 document.getElementById(pair.id).setAttribute("aria-valuenow", pair.progress);
                 document.getElementById(pair.id).setAttribute("style", "width:"+pair.progress+"%");
             });
-        }, 1000);
+        }
+
+        window.onLoad = progresser();
+        window.setInterval(progresser, 3000);
     </script>
 </body>
 </html>
