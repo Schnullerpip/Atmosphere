@@ -49,6 +49,7 @@ class LibPlayResponse(val libName:String) extends Response{
       Logger("Previous instance of playlist: " + libName + " was found", "LibPlayResponse", "playAll")
       killPlaylist()
     }
+    Atmosphere.soundLibs(libName).sounds.foreach(_._2.stop)
     Logger("Playing the whole playlist " + libName, "LibPlayResponse.scala", "playAll")
     currentlyPlaying = playlist
     playlist foreach {_.loop}
@@ -59,6 +60,7 @@ class LibPlayResponse(val libName:String) extends Response{
       Logger("Previous instance of playlist: " + libName + " was found", "LibPlayResponse", "loopPlaylist")
       killPlaylist()
     }
+    Atmosphere.soundLibs(libName).sounds.foreach(_._2.stop)
     rLoop(clips)(contin)
   }
 
