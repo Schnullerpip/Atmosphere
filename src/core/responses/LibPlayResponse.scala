@@ -61,7 +61,8 @@ class LibPlayResponse(val libName:String) extends Response{
       killPlaylist()
     }
     Atmosphere.soundLibs(libName).sounds.foreach(_._2.stop)
-    rLoop(clips)(contin)
+
+    rLoop(util.Random.shuffle(clips))(contin)
   }
 
   def rLoop(clips:Iterable[Sound])(contin:Boolean = playListTraverser.continue):Unit = {
