@@ -100,10 +100,10 @@ case class Sound(file:File) extends LineListener{
   }
 
   def pause = {
-    clip stop()
-
     isPlaying = false
     isPaused = true
+
+    clip stop()
     log("PAUSE sound: " + file.getName, "pause")
   }
 

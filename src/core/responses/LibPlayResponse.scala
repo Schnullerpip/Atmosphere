@@ -89,7 +89,7 @@ class LibPlayResponse(val libName:String) extends Response with LineListener{
 
   override def update(event: LineEvent): Unit = {
     event.getType match {
-      case LineEvent.Type.STOP =>
+      case LineEvent.Type.STOP if !currentlyPlaying.head.isPaused =>
         currentlyPlaying.head.clip.removeLineListener(this)
         if(continue){
           if(rest.nonEmpty){
