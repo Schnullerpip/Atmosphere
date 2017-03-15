@@ -9,7 +9,7 @@ import java.util.Calendar
 object Logger{
   val undefinedString = "UNDEFINED"
   val defaultLogPath = "tmp/AtmosphereLOG.txt"
-  val time: Calendar = Calendar.getInstance()
+  def time: Calendar = Calendar.getInstance()
 
   private var logger:Logger = _
   //handles the singleton
