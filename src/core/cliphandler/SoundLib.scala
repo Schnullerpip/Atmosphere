@@ -1,7 +1,7 @@
 package core.cliphandler
 
 import java.io.File
-import javax.sound.sampled.{AudioSystem, Clip}
+import javax.sound.sampled.{AudioSystem, Clip, FloatControl}
 
 import utils.logger.Logger
 
@@ -60,8 +60,27 @@ case class Sound(file:File){
 
   def stop = {
     if(isPlaying){
-      clip stop()
-      clip setFramePosition 0
+
+      //create a thread, that continuously lowers the clips volume and finally stops it
+      new Thread(){
+        val gainControl: FloatControl = clip.getControl(FloatControl.Type.MASTER_GAIN).asInstanceOf[FloatControl]
+        val previousVolume: Float = gainControl.getValue
+        val range: Float = gainControl.getMaximum - gainControl.getMinimum
+        override def run():Unit = {
+          var i = 1
+          while(i <= 10 && clip.isActive){
+            gainControl.setValue((gainControl.getMaximum - range*i/10.0).asInstanceOf[Float])
+            Thread.sleep(300)
+            i += 1
+          }
+          if(clip isActive){
+            clip stop()
+            gainControl.setValue(previousVolume)
+            clip setFramePosition 0
+          }
+        }
+      }.start()
+
 
       isPlaying = false
       isLooping = false
@@ -77,5 +96,14 @@ case class Sound(file:File){
     isPaused = true
     log("PAUSE sound: " + file.getName, "pause")
   }
-}
 
+  /**
+    * pretty much does what it says
+    * @param volume value between 0.0 and 1.0
+  */
+  def setVolume(volume:Float):Unit = {
+    if (volume < 0f || volume > 1f)
+      throw new IllegalArgumentException("Volume not valid: " + volume)
+  }
+
+}
