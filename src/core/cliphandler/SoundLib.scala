@@ -1,12 +1,13 @@
 package core.cliphandler
 
 import java.io.File
-import javax.sound.sampled.{AudioSystem, Clip, FloatControl}
+import javax.sound.sampled._
 
 import utils.logger.Logger
 
 /**
   * Created by julian on 04-Mar-17.
+  * Class that represents a sound library containing a bunch of sounds
   */
 case class SoundLib(map:Map[String, Sound]){
   val sounds:Map[String, Sound] = map
@@ -16,11 +17,15 @@ case class SoundLib(map:Map[String, Sound]){
   def size = sounds.size
 }
 
-case class Sound(file:File){
+/**
+  * Wrapper class for the Clip class
+  * */
+case class Sound(file:File) extends LineListener{
 
   var isPlaying = false
   var isLooping = false
   var isPaused = false
+  var hasListener = false
 
   def log(msg:String, method:String = "play", location:String = "SoundLib.scala::Sound") = Logger(msg, location, method)
 
@@ -41,6 +46,12 @@ case class Sound(file:File){
     }
     if(!isPaused)
       clip setFramePosition 0
+
+    if(!hasListener){
+      clip addLineListener this
+      hasListener = true
+    }
+
     clip start()
 
     isPaused = false
@@ -60,6 +71,9 @@ case class Sound(file:File){
 
   def stop = {
     if(isPlaying){
+      isPlaying = false
+      isLooping = false
+      isPaused = false
 
       //create a thread, that continuously lowers the clips volume and finally stops it
       new Thread(){
@@ -81,10 +95,6 @@ case class Sound(file:File){
         }
       }.start()
 
-
-      isPlaying = false
-      isLooping = false
-      isPaused = false
       log("STOP sound: " + file.getName, "stop")
     }
   }
@@ -106,4 +116,10 @@ case class Sound(file:File){
       throw new IllegalArgumentException("Volume not valid: " + volume)
   }
 
+  override def update(event: LineEvent): Unit = {
+    event.getType match {
+      case LineEvent.Type.STOP if isPlaying => stop
+      case _ =>
+    }
+  }
 }

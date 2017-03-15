@@ -1,5 +1,7 @@
 package core.responses
 
+import javax.sound.sampled.{LineEvent, LineListener}
+
 import core.cliphandler.Sound
 import main.Atmosphere
 import utils.logger.Logger
@@ -8,8 +10,7 @@ import utils.logger.Logger
   * Created by julian on 08-Mar-17.
   */
 
-object LibPlayResponse{
-  private var isWaiting = false
+object LibPlayResponse {
   private var uniquePlaylists:Map[String, LibPlayResponse] = Map()
 
   def apply(libName:String): LibPlayResponse = {
@@ -23,28 +24,29 @@ object LibPlayResponse{
   }
 }
 
-class LibPlayResponse(val libName:String) extends Response{
-  val playlist: Seq[Sound] = Atmosphere.soundLibs(libName).sounds.values.toSeq
+class LibPlayResponse(val libName:String) extends Response with LineListener{
+  val playlist: Seq[Sound] = util.Random.shuffle(Atmosphere.soundLibs(libName).sounds.values.toSeq).toList
   private var currentlyPlaying:Seq[Sound] = Seq()
-  private val playListTraverser = new Thread(){
-    var continue = true
-
-    override def run(): Unit = {
-      Logger("playListTraverser[THREAD: " + getName + "] STARTED to play playlist: " + libName, "LibPlayResponse.scala", "run")
-      loopPlaylist(playlist)()
-      Logger("playListTraverser[THREAD: " + getName + "] STOPPED to play playlist: " + libName, "LibPlayResponse.scala", "run")
-    }
-  }
+  private var rest:Seq[Sound] = Seq()
+  private var continue = true
 
   def killPlaylist(): Unit = {
     Logger("Killing the whole playlist " + libName, "LibPlayResponse.scala", "killPlaylist")
+    continue = false
+
     //currentlyPlaying foreach {_.stop}
     Atmosphere.soundLibs(libName).sounds.foreach(_._2.stop)
-    playListTraverser.continue = false
+
+    //remove this playlist out of the global list of playlists
     LibPlayResponse.uniquePlaylists = LibPlayResponse.uniquePlaylists.filter(entry => entry._1 != libName)
   }
 
-  def playAll(): Unit = {
+  def playHead = {
+    currentlyPlaying.head.clip.addLineListener(this)
+    currentlyPlaying.head.play
+  }
+
+  def playAll = {
     if(currentlyPlaying.nonEmpty){
       Logger("Previous instance of playlist: " + libName + " was found", "LibPlayResponse", "playAll")
       killPlaylist()
@@ -55,40 +57,25 @@ class LibPlayResponse(val libName:String) extends Response{
     playlist foreach {_.loop}
   }
 
-  def loopPlaylist(clips:Iterable[Sound])(contin:Boolean = playListTraverser.continue):Unit ={
+  def loopPlaylist = {
     if(currentlyPlaying.nonEmpty){
       Logger("Previous instance of playlist: " + libName + " was found", "LibPlayResponse", "loopPlaylist")
       killPlaylist()
     }
     Atmosphere.soundLibs(libName).sounds.foreach(_._2.stop)
 
-    rLoop(util.Random.shuffle(clips))(contin)
-  }
-
-  def rLoop(clips:Iterable[Sound])(contin:Boolean = playListTraverser.continue):Unit = {
-    if(!contin)return
-    Logger("playing: " + clips.head.clip + " in playlist: " + libName, "LibPlayResponse.scala", "rLoop")
-    val clipLength = clips.head.clip.getMicrosecondLength/1000
-    currentlyPlaying = Seq(clips.head)
-    clips.head.play
-    Thread.sleep(clipLength)
-    if(clips.tail.nonEmpty) {
-      rLoop(clips.tail)()
-    }
-    else{
-      Logger("Repeating from the start", "LibPlayResponse.scala", "rLoop")
-      rLoop(playlist)()
-    }
+    currentlyPlaying = Seq(playlist.head)
+    rest = playlist.tail
+    playHead
   }
 
   def act(mode:MODE):LibPlayResponse = {
     if(playlist.nonEmpty){
       mode match {
         case PLAY =>
-          playAll()
+          playAll
         case LOOP =>
-          playListTraverser.start()
-          Thread.sleep(200)
+          loopPlaylist
         case _ =>
           killPlaylist()
       }
@@ -98,5 +85,21 @@ class LibPlayResponse(val libName:String) extends Response{
 
   override def html: String = {
     new IndexResponse().html //this loads the new index page
+  }
+
+  override def update(event: LineEvent): Unit = {
+    event.getType match {
+      case LineEvent.Type.STOP =>
+        currentlyPlaying.head.clip.removeLineListener(this)
+        if(continue){
+          if(rest.nonEmpty){
+            currentlyPlaying = Seq(rest.head)
+            rest = rest.tail
+            playHead
+          } else
+            loopPlaylist
+        }
+      case _ =>
+    }
   }
 }
