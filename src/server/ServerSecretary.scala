@@ -1,7 +1,7 @@
 package server
 
 import java.io.{BufferedWriter, File, FileWriter}
-import java.net.{InetAddress, ServerSocket}
+import java.net.{InetAddress, ServerSocket, Socket}
 
 import utils.logger.Logger
 
@@ -27,12 +27,12 @@ case class ServerSecretary(port:Int) {
   def listen() = {
         while(continue){
           log("Server listening on port: " + port + " - waiting for connection", "listen")
-          val incomingConnection = socket.accept()
+          val incomingConnection: Socket = socket.accept()
 
-          if(!connections.exists( c => c.socket.getInetAddress == incomingConnection.getInetAddress && c.isAlive)) {
+          if(!connections.exists( c => (c.socket.getInetAddress == incomingConnection.getInetAddress) && c.isAlive)) {
             val connection = new SocketServerConnection(incomingConnection)
             connections = connection :: connections
-            connection.start()
+            connection.run()
           }
         }
   }

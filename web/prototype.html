@@ -20,10 +20,12 @@
     <script>
         function httpGet(theUrl)
         {
-            var xmlHttp = new XMLHttpRequest();
-            xmlHttp.open( "GET", theUrl, true ); // false for synchronous request
-            xmlHttp.send( null );
-            return xmlHttp.responseText;
+            try{
+                var xmlHttp = new XMLHttpRequest();
+                xmlHttp.open( "GET", theUrl, false ); // false for synchronous request
+                xmlHttp.send( null );
+                return xmlHttp.responseText;
+            }catch(err){console.log("httpGet: " + err);}
         }
     </script>
 
@@ -49,22 +51,24 @@
 
 <script>
         function progresser() {
-            var progressResponse = httpGet("LIB=LIBNAME;MODE=PROGRESS");
-            var idProgressPairs = progressResponse.split(";").filter(function(arg){return arg != ""});
-            idProgressPairs = idProgressPairs.map(function(item){
-                var idPro = item.split(":");
-                return {
-                    id: idPro[0],
-                    progress: idPro[1]
-                };
-            });
+            try{
+                var progressResponse = httpGet("LIB=LIBNAME;MODE=PROGRESS");
+                var idProgressPairs = progressResponse.split(";").filter(function(arg){return arg != ""});
+                idProgressPairs = idProgressPairs.map(function(item){
+                    var idPro = item.split(":");
+                    return {
+                        id: idPro[0],
+                        progress: idPro[1]
+                    };
+                });
 
-            idProgressPairs.forEach(function(pair){
-                console.log(pair.id);
-                console.log(document.getElementById(pair.id));
-                document.getElementById(pair.id).setAttribute("aria-valuenow", pair.progress);
-                document.getElementById(pair.id).setAttribute("style", "width:"+pair.progress+"%");
-            });
+                idProgressPairs.forEach(function(pair){
+                    //console.log(pair.id);
+                    //console.log(document.getElementById(pair.id));
+                    document.getElementById(pair.id).setAttribute("aria-valuenow", pair.progress);
+                    document.getElementById(pair.id).setAttribute("style", "width:"+pair.progress+"%");
+                });
+            }catch(err){console.log("progresser: " + err);}
         }
 
         window.onLoad = progresser();
