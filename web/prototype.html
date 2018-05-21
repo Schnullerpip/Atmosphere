@@ -52,22 +52,36 @@
 <script>
         function progresser() {
             try{
-                var progressResponse = httpGet("LIB=LIBNAME;MODE=PROGRESS");
-                var idProgressPairs = progressResponse.split(";").filter(function(arg){return arg != ""});
-                idProgressPairs = idProgressPairs.map(function(item){
-                    var idPro = item.split(":");
-                    return {
-                        id: idPro[0],
-                        progress: idPro[1]
-                    };
-                });
+                var xhr = new XMLHttpRequest();
+                xhr.open("GET", "LIB=LIBNAME;MODE=PROGRESS", true);
+                xhr.onload = function (e) {
+                  if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        var idProgressPairs = xhr.responseText.split(";").filter(function(arg){return arg != ""});
+                        idProgressPairs = idProgressPairs.map(function(item){
+                            var idPro = item.split(":");
+                            return {
+                                id: idPro[0],
+                                progress: idPro[1]
+                            };
+                        });
 
-                idProgressPairs.forEach(function(pair){
-                    //console.log(pair.id);
-                    //console.log(document.getElementById(pair.id));
-                    document.getElementById(pair.id).setAttribute("aria-valuenow", pair.progress);
-                    document.getElementById(pair.id).setAttribute("style", "width:"+pair.progress+"%");
-                });
+                        idProgressPairs.forEach(function(pair){
+                            //console.log(pair.id);
+                            //console.log(document.getElementById(pair.id));
+                            document.getElementById(pair.id).setAttribute("aria-valuenow", pair.progress);
+                            document.getElementById(pair.id).setAttribute("style", "width:"+pair.progress+"%");
+                        });
+
+                    } else {
+                      console.error(xhr.statusText);
+                    }
+                  }
+                };
+                xhr.onerror = function (e) {
+                  console.error(xhr.statusText);
+                };
+                xhr.send(null);
             }catch(err){console.log("progresser: " + err);}
         }
 
