@@ -3,6 +3,7 @@ package server
 import java.io._
 import java.net.Socket
 
+import core.requestResolver.RequestResolver
 import core.responses._
 import utils.logger.Logger
 
@@ -30,9 +31,9 @@ class SocketServerConnection(val socket:Socket) extends Thread{
 
     //parse the input and reduce it to the relevant information - if successfully parsed call the response constructor
     import core.requestResolver.RequestResolver._
-    val responseParsing = parse(request, input)
+    val responseParsing: RequestResolver.ParseResult[() => Response] = parse(request, input)
     if(responseParsing.successful){
-      val responseConstructor = responseParsing.get
+      val responseConstructor: () => Response = responseParsing.get
       responseConstructor()
     }else{
       NotFoundResponse

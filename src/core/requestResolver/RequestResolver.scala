@@ -10,9 +10,9 @@ import scala.util.parsing.combinator.JavaTokenParsers
 object RequestResolver extends JavaTokenParsers{
 
   /**
-    * parsers the http request for FILE, LIB, and MODE arguments
+    * parses the http request for FILE, LIB, and MODE arguments
     * @return returns a lambda that constructs the respective Response, so the caller of this method
-    *         stays in control of the time and place where the actual Response ins created
+    *         stays in control of the time and place where the actual Response is created
     * */
   def request:Parser[() => Response] =
     (("GET" ~> "/") ~> ("LIB" ~> "=" ~> ident)) ~

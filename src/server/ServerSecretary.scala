@@ -7,6 +7,8 @@ import utils.logger.Logger
 
 /**
   * Created by julian on 04-Mar-17.
+  * the core server providing a listening socket, that can be connected to
+  * an instance of this class is used to establish SocketServerConnections
   */
 case class ServerSecretary(port:Int) {
   private var continue = true
