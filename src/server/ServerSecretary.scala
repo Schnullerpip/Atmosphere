@@ -32,6 +32,7 @@ case class ServerSecretary(port:Int) {
           if(!connections.exists( c => (c.socket.getInetAddress == incomingConnection.getInetAddress) && c.isAlive)) {
             val connection = new SocketServerConnection(incomingConnection)
             connections = connection :: connections
+            //TODO this is a quickfix for the freeze issue! BUG is something threadrelated so calling run instead of start provides a nasty fix for now
             connection.run()
           }
         }
